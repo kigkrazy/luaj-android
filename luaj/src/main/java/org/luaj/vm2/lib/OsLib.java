@@ -21,8 +21,6 @@
 ******************************************************************************/
 package org.luaj.vm2.lib;
 
-//TODO 与3.0不一样
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,12 +55,12 @@ import org.luaj.vm2.Varargs;
  * </ul>
  * <p>
  * Typically, this library is included as part of a call to either 
- * {@link JsePlatform#standardGlobals()} or {@link JmePlatform#standardGlobals()}
+ * {@link org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()} or {@link org.luaj.vm2.lib.jme.JmePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * System.out.println( globals.get("os").get("time").call() );
  * } </pre>
- * In this example the platform-specific {@link JseOsLib} library will be loaded, which will include
+ * In this example the platform-specific {@link org.luaj.vm2.lib.jse.JseOsLib} library will be loaded, which will include
  * the base functionality provided by this class.
  * <p>
  * To instantiate and use it directly, 
@@ -76,9 +74,9 @@ import org.luaj.vm2.Varargs;
  * } </pre>
  * <p>
   * @see LibFunction
- * @see JseOsLib
- * @see JsePlatform
- * @see JmePlatform
+ * @see org.luaj.vm2.lib.jse.JseOsLib
+ * @see org.luaj.vm2.lib.jse.JsePlatform
+ * @see org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.8">http://www.lua.org/manual/5.1/manual.html#5.8</a>
  */
 public class OsLib extends TwoArgFunction {
@@ -122,6 +120,12 @@ public class OsLib extends TwoArgFunction {
 	public OsLib() {
 	}
 	
+	/** Perform one-time initialization on the library by creating a table
+	 * containing the library functions, adding that table to the supplied environment,
+	 * adding the table to package.loaded, and returning table as the return value.
+	 * @param modname the module name supplied if this is loaded via 'require'.
+	 * @param env the environment to load into, typically a Globals instance.
+	 */
 	public LuaValue call(LuaValue modname, LuaValue env) {
 		globals = env.checkglobals();
 		LuaTable os = new LuaTable();
@@ -406,8 +410,19 @@ public class OsLib extends TwoArgFunction {
 	}
 
 	/**
-	 * Returns the value of the process environment variable varname, 
-	 * or null if the variable is not defined. 
+	 * Returns the value of the process environment variable varname,
+	 * or the System property value for varname,
+	 * or null if the variable is not defined in either environment.
+	 * 
+	 * The default implementation, which is used by the JmePlatform,
+	 * only queryies System.getProperty(). 
+	 * 
+	 * The JsePlatform overrides this behavior and returns the
+	 * environment variable value using System.getenv() if it exists, 
+	 * or the System property value if it does not.
+	 * 
+	 * A SecurityException may be thrown if access is not allowed 
+	 * for 'varname'.
 	 * @param varname
 	 * @return String value, or null if not defined
 	 */
@@ -479,7 +494,7 @@ public class OsLib extends TwoArgFunction {
 			c.set(Calendar.YEAR, table.get("year").checkint());
 			c.set(Calendar.MONTH, table.get("month").checkint()-1);
 			c.set(Calendar.DAY_OF_MONTH, table.get("day").checkint());
-			c.set(Calendar.HOUR_OF_DAY, table.get("hour").optint(0));
+			c.set(Calendar.HOUR_OF_DAY, table.get("hour").optint(12));
 			c.set(Calendar.MINUTE, table.get("min").optint(0));
 			c.set(Calendar.SECOND, table.get("sec").optint(0));
 			c.set(Calendar.MILLISECOND, 0);

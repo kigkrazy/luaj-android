@@ -10,7 +10,7 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-*
+* 
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,9 +24,11 @@ package org.luaj.vm2.lib.jse;
 import java.io.File;
 import java.io.IOException;
 
+import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.LibFunction;
+import org.luaj.vm2.lib.OsLib;
 
 /**
  * Subclass of {@link LibFunction} which implements the standard lua {@code os} library.
@@ -45,7 +47,7 @@ import org.luaj.vm2.lib.LibFunction;
  * from their counterparts in the C platform.  
  * <p>
  * Typically, this library is included as part of a call to 
- * {@link JsePlatform#standardGlobals()}
+ * {@link org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * System.out.println( globals.get("os").get("time").call() );
@@ -65,30 +67,34 @@ import org.luaj.vm2.lib.LibFunction;
  * <p>
  * @see LibFunction
  * @see OsLib
- * @see JsePlatform
+ * @see org.luaj.vm2.lib.jse.JsePlatform
  * @see org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.9">Lua 5.2 OS Lib Reference</a>
  */
 public class JseOsLib extends org.luaj.vm2.lib.OsLib {
-
+	
 	/** return code indicating the execute() threw an I/O exception */
 	public static int EXEC_IOEXCEPTION =  1;
-
+	
 	/** return code indicating the execute() was interrupted */
 	public static int EXEC_INTERRUPTED = -2;
-
+	
 	/** return code indicating the execute() threw an unknown exception */
 	public static int EXEC_ERROR       = -3;
-
+	
 	/** public constructor */
 	public JseOsLib() {
+	}
+
+	protected String getenv(String varname) {
+		String s = System.getenv(varname);
+		return s != null? s : System.getProperty(varname);
 	}
 
 	protected Varargs execute(String command) {
 		int exitValue;
 		try {
-//			exitValue = new JseProcess(command, null, globals.STDOUT, globals.STDERR).waitFor();
-			exitValue = new JseProcess(command, null, null, null).waitFor();
+			exitValue = new JseProcess(command, null, globals.STDOUT, globals.STDERR).waitFor();
 		} catch (IOException ioe) {
 			exitValue = EXEC_IOEXCEPTION;
 		} catch (InterruptedException e) {
@@ -125,5 +131,5 @@ public class JseOsLib extends org.luaj.vm2.lib.OsLib {
 			return super.tmpname();
 		}
 	}
-
+	
 }

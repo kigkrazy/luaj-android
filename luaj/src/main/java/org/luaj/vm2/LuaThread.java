@@ -33,14 +33,12 @@ import java.lang.ref.WeakReference;
  * <p>
  * The threads must be initialized with the globals, so that 
  * the global environment may be passed along according to rules of lua. 
- * This is done via a call to {@link #setGlobals(LuaValue)} 
- * at some point during globals initialization.
- * See {@link BaseLib} for additional documentation and example code.  
+ * This is done via the constructor arguments {@link #LuaThread(Globals)} or 
+ * {@link #LuaThread(Globals, LuaValue)}.
  * <p> 
- * The utility classes {@link JsePlatform} and {@link JmePlatform} 
- * see to it that this initialization is done properly.  
- * For this reason it is highly recommended to use one of these classes
- * when initializing globals. 
+ * The utility classes {@link org.luaj.vm2.lib.jse.JsePlatform} and 
+ * {@link org.luaj.vm2.lib.jme.JmePlatform} 
+ * see to it that this {@link Globals} are initialized properly.
  * <p>
  * The behavior of coroutine threads matches closely the behavior 
  * of C coroutine library.  However, because of the use of Java threads 
@@ -50,23 +48,39 @@ import java.lang.ref.WeakReference;
  * to determine if it can ever be resumed.  If not, it throws 
  * {@link OrphanedThread} which is an {@link java.lang.Error}. 
  * Applications should not catch {@link OrphanedThread}, because it can break
- * the thread safety of luaj.
+ * the thread safety of luaj.  The value controlling the polling interval 
+ * is {@link #thread_orphan_check_interval} and may be set by the user.
+ * <p> 
+ * There are two main ways to abandon a coroutine.  The first is to call 
+ * {@code yield()} from lua, or equivalently {@link Globals#yield(Varargs)}, 
+ * and arrange to have it never resumed possibly by values passed to yield.
+ * The second is to throw {@link OrphanedThread}, which should put the thread
+ * in a dead state.   In either case all references to the thread must be
+ * dropped, and the garbage collector must run for the thread to be 
+ * garbage collected. 
+ *
  *   
  * @see LuaValue
- * @see JsePlatform
- * @see JmePlatform
- * @see CoroutineLib
+ * @see org.luaj.vm2.lib.jse.JsePlatform
+ * @see org.luaj.vm2.lib.jme.JmePlatform
+ * @see org.luaj.vm2.lib.CoroutineLib
  */
 public class LuaThread extends LuaValue {
 
+	/** Shared metatable for lua threads. */
 	public static LuaValue s_metatable;
 
+	/** The current number of coroutines.  Should not be set. */
 	public static int coroutine_count = 0;
 
-	/** Interval at which to check for lua threads that are no longer referenced. 
-	 * This can be changed by Java startup code if desired.
+	/** Polling interval, in milliseconds, which each thread uses while waiting to
+	 * return from a yielded state to check if the lua threads is no longer
+	 * referenced and therefore should be garbage collected.  
+	 * A short polling interval for many threads will consume server resources. 
+	 * Orphaned threads cannot be detected and collected unless garbage
+	 * collection is run.  This can be changed by Java startup code if desired.
 	 */
-	static long thread_orphan_check_interval = 30000;
+	public static long thread_orphan_check_interval = 5000;
 	
 	public static final int STATUS_INITIAL       = 0;
 	public static final int STATUS_SUSPENDED     = 1;
@@ -83,30 +97,15 @@ public class LuaThread extends LuaValue {
 	public final State state;
 
 	public static final int        MAX_CALLSTACK = 256;
-	
-	/** Interval to check for LuaThread dereferencing.  */
-	public static int GC_INTERVAL = 30000;
 
 	/** Thread-local used by DebugLib to store debugging state. 
-	 * This is ano opaque value that should not be modified by applications. */
+	 * This is an opaque value that should not be modified by applications. */
 	public Object callstack;
 
 	public final Globals globals;
 
-	/** Hook function control state used by debug lib. */
-	public LuaValue hookfunc;
-
 	/** Error message handler for this thread, if any.  */
 	public LuaValue errorfunc;
-
-	public boolean hookline;
-	public boolean hookcall;
-	public boolean hookrtrn;
-	public int hookcount;
-	public boolean inhook;
-	public int lastline;
-	public int bytecodes;
-
 	
 	/** Private constructor for main thread only */
 	public LuaThread(Globals globals) {
@@ -172,6 +171,18 @@ public class LuaThread extends LuaValue {
 		Varargs args = LuaValue.NONE;
 		Varargs result = LuaValue.NONE;
 		String error = null;
+
+		/** Hook function control state used by debug lib. */
+		public LuaValue hookfunc;
+
+		public boolean hookline;
+		public boolean hookcall;
+		public boolean hookrtrn;
+		public int hookcount;
+		public boolean inhook;
+		public int lastline;
+		public int bytecodes;
+		
 		public int status = LuaThread.STATUS_INITIAL;
 
 		State(Globals globals, LuaThread lua_thread, LuaValue function) {

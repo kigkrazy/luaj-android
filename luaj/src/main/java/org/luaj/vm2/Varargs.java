@@ -91,28 +91,28 @@ public abstract class Varargs {
 	/** Gets the type of argument {@code i} 
 	 * @param i the index of the argument to convert, 1 is the first argument
 	 * @return int value corresponding to one of the LuaValue integer type values
-	 * @see LuaValue.TNIL
-	 * @see LuaValue.TBOOLEAN
-	 * @see LuaValue.TNUMBER
-	 * @see LuaValue.TSTRING
-	 * @see LuaValue.TTABLE
-	 * @see LuaValue.TFUNCTION
-	 * @see LuaValue.TUSERDATA
-	 * @see LuaValue.TTHREAD
+	 * @see LuaValue#TNIL
+	 * @see LuaValue#TBOOLEAN
+	 * @see LuaValue#TNUMBER
+	 * @see LuaValue#TSTRING
+	 * @see LuaValue#TTABLE
+	 * @see LuaValue#TFUNCTION
+	 * @see LuaValue#TUSERDATA
+	 * @see LuaValue#TTHREAD
 	 * */
 	public int type(int i)             { return arg(i).type(); }
 	
 	/** Tests if argument i is nil.
 	 * @param i the index of the argument to test, 1 is the first argument
 	 * @return true if the argument is nil or does not exist, false otherwise
-	 * @see LuaValue.TNIL
+	 * @see LuaValue#TNIL
 	 * */
 	public boolean isnil(int i)        { return arg(i).isnil(); }
 
 	/** Tests if argument i is a function.
 	 * @param i the index of the argument to test, 1 is the first argument
 	 * @return true if the argument exists and is a function or closure, false otherwise
-	 * @see LuaValue.TFUNCTION
+	 * @see LuaValue#TFUNCTION
 	 * */
 	public boolean isfunction(int i)   { return arg(i).isfunction(); }
 
@@ -123,8 +123,8 @@ public abstract class Varargs {
 	 * @param i the index of the argument to test, 1 is the first argument
 	 * @return true if the argument exists and is a number or 
 	 * string that can be interpreted as a number, false otherwise
-	 * @see LuaValue.TNUMBER
-	 * @see LuaValue.TSTRING
+	 * @see LuaValue#TNUMBER
+	 * @see LuaValue#TSTRING
 	 * */
 	public boolean isnumber(int i)     { return arg(i).isnumber(); }
 
@@ -133,29 +133,29 @@ public abstract class Varargs {
 	 * this will return true for both strings and numbers.  
 	 * @param i the index of the argument to test, 1 is the first argument
 	 * @return true if the argument exists and is a string or number, false otherwise
-	 * @see LuaValue.TNUMBER
-	 * @see LuaValue.TSTRING
+	 * @see LuaValue#TNUMBER
+	 * @see LuaValue#TSTRING
 	 * */
 	public boolean isstring(int i)     { return arg(i).isstring(); }
 
 	/** Tests if argument i is a table.
 	 * @param i the index of the argument to test, 1 is the first argument
 	 * @return true if the argument exists and is a lua table, false otherwise
-	 * @see LuaValue.TTABLE
+	 * @see LuaValue#TTABLE
 	 * */
 	public boolean istable(int i)      { return arg(i).istable(); }
 
 	/** Tests if argument i is a thread.
 	 * @param i the index of the argument to test, 1 is the first argument
 	 * @return true if the argument exists and is a lua thread, false otherwise
-	 * @see LuaValue.TTHREAD
+	 * @see LuaValue#TTHREAD
 	 * */
 	public boolean isthread(int i)     { return arg(i).isthread(); }
 
 	/** Tests if argument i is a userdata.
 	 * @param i the index of the argument to test, 1 is the first argument
 	 * @return true if the argument exists and is a userdata, false otherwise
-	 * @see LuaValue.TUSERDATA
+	 * @see LuaValue#TUSERDATA
 	 * */
 	public boolean isuserdata(int i)   { return arg(i).isuserdata(); }
 
@@ -386,11 +386,12 @@ public abstract class Varargs {
 	 * */
 	public LuaValue     checknotnil(int i)           { return arg(i).checknotnil(); }
 	
-	/** Return argument i as a LuaValue when a user-supplied assertion passes, or throw an error.
+	/** Performs test on argument i as a LuaValue when a user-supplied assertion passes, or throw an error.
+	 * Returns normally if the value of {@code test} is {@code true}, otherwise throws and argument error with 
+	 * the supplied message, {@code msg}.
 	 * @param test user supplied assertion to test against
 	 * @param i the index to report in any error message
 	 * @param msg the error message to use when the test fails
-	 * @return LuaValue value if the value of {@code test} is {@code true}
 	 * @exception LuaError if the the value of {@code test} is {@code false}
 	 * */
 	public void         argcheck(boolean test, int i, String msg) { if (!test) LuaValue.argerror(i,msg); }
@@ -606,9 +607,6 @@ public abstract class Varargs {
 		ArrayVarargs(LuaValue[] v, Varargs r) {
 			this.v = v;
 			this.r = r ;
-			for (int i = 0; i < v.length; ++i)
-				if (v[i] == null)
-					throw new IllegalArgumentException("nulls in array");
 		}
 		public LuaValue arg(int i) {
 			return i < 1 ? LuaValue.NIL: i <= v.length? v[i - 1]: r.arg(i-v.length);
@@ -625,6 +623,11 @@ public abstract class Varargs {
 			if (start > v.length)
 				return r.subargs(start - v.length);
 			return LuaValue.varargsOf(v, start - 1, v.length - (start - 1), r);
+		}
+		void copyto(LuaValue[] dest, int offset, int length) {
+			int n = Math.min(v.length, length);
+			System.arraycopy(v, 0, dest, offset, n);
+			r.copyto(dest, offset + n, length - n);
 		}
 	}
 
@@ -684,6 +687,37 @@ public abstract class Varargs {
 			if (start > length)
 				return more.subargs(start - length);
 			return LuaValue.varargsOf(v, offset + start - 1, length - (start - 1), more);
+		}
+		void copyto(LuaValue[] dest, int offset, int length) {
+			int n = Math.min(this.length, length);
+			System.arraycopy(this.v, this.offset, dest, offset, n);
+			more.copyto(dest, offset + n, length - n);
+		}
+	}
+
+	/** Copy values in a varargs into a destination array.
+	 * Internal utility method not intended to be called directly from user code.
+	 * @return Varargs containing same values, but flattened.
+	 */
+	void copyto(LuaValue[] dest, int offset, int length) {
+		for (int i=0; i<length; ++i)
+			dest[offset+i] = arg(i+1);
+	}
+
+	/** Return Varargs that cannot be using a shared array for the storage, and is flattened.
+	 * Internal utility method not intended to be called directly from user code.
+	 * @return Varargs containing same values, but flattened and with a new array if needed.
+	 */
+	Varargs dealias() {
+		int n = narg();
+		switch (n) {
+		case 0: return LuaValue.NONE;
+		case 1: return arg1();
+		case 2: return new PairVarargs(arg1(), arg(2));
+		default:
+			LuaValue[] v = new LuaValue[n];
+			copyto(v, 0, n);
+			return new ArrayVarargs(v, LuaValue.NONE);
 		}
 	}
 }

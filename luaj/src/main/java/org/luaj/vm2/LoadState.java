@@ -25,15 +25,14 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.luaj.vm2.compiler.DumpState;
-
 
 /**
 * Class to undump compiled lua bytecode into a {@link Prototype} instances.
 * <p>
-* The {@link LoadState} class implements {@link Globals#Undumper}
+* The {@link LoadState} class provides the default {@link Globals.Undumper}
 * which is used to undump a string of bytes that represent a lua binary file
-* using either the C-based lua compiler, or luaj's {@link DumpState#dump} function.
+* using either the C-based lua compiler, or luaj's 
+* {@link org.luaj.vm2.compiler.LuaC} compiler.
 * <p>
 * The canonical method to load and execute code is done 
 * indirectly using the Globals:
@@ -42,24 +41,27 @@ import org.luaj.vm2.compiler.DumpState;
 * LuaValue chunk = globasl.load("print('hello, world')", "main.lua");
 * chunk.call();
 * } </pre>
-* This should work regardless of which {@link Globals.Compiler}
-* has been installed.
+* This should work regardless of which {@link Globals.Compiler} or {@link Globals.Undumper}
+* have been installed.
 * <p>
-* By default, when using {@link JsePlatform} or {@JmePlatform}
-* to construct globals, the {@link LoadState} is installed
-* as the default {@link Globals#undumper}. 
+* By default, when using {@link org.luaj.vm2.lib.jse.JsePlatform} or 
+* {@link org.luaj.vm2.lib.jme.JmePlatform}
+* to construct globals, the {@link LoadState} default undumper is installed
+* as the default {@link Globals.Undumper}. 
 * <p>
 * 
-* A lua binary file is created via {@link DumpState#dump}:
+* A lua binary file is created via the {@link org.luaj.vm2.compiler.DumpState} class
+:
 * <pre> {@code
 * Globals globals = JsePlatform.standardGlobals();
 * Prototype p = globals.compilePrototype(new StringReader("print('hello, world')"), "main.lua");
 * ByteArrayOutputStream o = new ByteArrayOutputStream();
-* DumpState.dump(p, o, false);
+* org.luaj.vm2.compiler.DumpState.dump(p, o, false);
 * byte[] lua_binary_file_bytes = o.toByteArray();
 * } </pre>
 * 
-* The {@link LoadState} may be used directly to undump these bytes:
+* The {@link LoadState}'s default undumper {@link #instance} 
+* may be used directly to undump these bytes:
 * <pre> {@code
 * Prototypep = LoadState.instance.undump(new ByteArrayInputStream(lua_binary_file_bytes), "main.lua");
 * LuaClosure c = new LuaClosure(p, globals);
@@ -67,25 +69,26 @@ import org.luaj.vm2.compiler.DumpState;
 * } </pre>
 * 
 * 
-* More commonly, the {@link Globals#undumper} may be used to undump them:
+* More commonly, the {@link Globals.Undumper} may be used to undump them:
 * <pre> {@code
 * Prototype p = globals.loadPrototype(new ByteArrayInputStream(lua_binary_file_bytes), "main.lua", "b");
 * LuaClosure c = new LuaClosure(p, globals);
 * c.call();
 * } </pre>
 * 
-* @see LuaCompiler
+* @see Globals.Compiler
+* @see Globals.Undumper
 * @see LuaClosure
 * @see LuaFunction
-* @see LoadState#compiler
-* @see LoadState#load(InputStream, String, LuaValue)
-* @see LuaC
-* @see LuaJC
+* @see org.luaj.vm2.compiler.LuaC
+* @see org.luaj.vm2.luajc.LuaJC
+* @see Globals#compiler
+* @see Globals#load(InputStream, String, LuaValue)
 */
-public class LoadState implements Globals.Undumper {
+public class LoadState {
 
 	/** Shared instance of Globals.Undumper to use loading prototypes from binary lua files */
-	public static final Globals.Undumper instance = new LoadState();
+	public static final Globals.Undumper instance = new GlobalsUndumper();
 	
 	/** format corresponding to non-number-patched lua, all numbers are floats or doubles */
 	public static final int NUMBER_FORMAT_FLOATS_OR_DOUBLES    = 0;
@@ -220,7 +223,7 @@ public class LoadState implements Globals.Undumper {
 			return null;
 		byte[] bytes = new byte[size];
 		is.readFully( bytes, 0, size );
-		return LuaString.valueOf( bytes, 0, bytes.length - 1 );
+		return LuaString.valueUsing( bytes, 0, bytes.length - 1 );
 	}
 	
 	/**
@@ -383,11 +386,11 @@ public class LoadState implements Globals.Undumper {
 	/**
 	 * Load input stream as a lua binary chunk if the first 4 bytes are the lua binary signature.
 	 * @param stream InputStream to read, after having read the first byte already
-	 * @param name Name to apply to the loaded chunk
+	 * @param chunkname Name to apply to the loaded chunk
 	 * @return {@link Prototype} that was loaded, or null if the first 4 bytes were not the lua signature.
 	 * @throws IOException if an IOException occurs
 	 */
-	public Prototype undump(InputStream stream, String chunkname) throws IOException {
+	public static Prototype undump(InputStream stream, String chunkname) throws IOException {
 		// check rest of signature
 		if ( stream.read() != LUA_SIGNATURE[0] 
 		   || stream.read() != LUA_SIGNATURE[1]
@@ -432,8 +435,10 @@ public class LoadState implements Globals.Undumper {
 		this.is = new DataInputStream( stream );
 	}
 	
-	private LoadState() {
-		this.name = "";
-		this.is = null;
+	private static final class GlobalsUndumper implements Globals.Undumper {
+		public Prototype undump(InputStream stream, String chunkname)
+				throws IOException {
+			return LoadState.undump(stream,  chunkname);
+		}
 	}
 }

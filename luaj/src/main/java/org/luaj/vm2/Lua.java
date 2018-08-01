@@ -355,8 +355,7 @@ public class Lua {
 		 }
 		 int n = source.length() + end.length(); 
 		 if ( n > MAXSRC )
-//			 source = source.substring(0,MAXSRC-end.length()-3) + "...";
-			 source = "..." + source.substring(end.length() - MAXSRC,end.length());//modified by song
+			 source = source.substring(0,MAXSRC-end.length()-3) + "...";
 		 return source + end;
 	}
 }

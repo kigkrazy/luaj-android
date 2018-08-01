@@ -46,7 +46,7 @@ import org.luaj.vm2.LuaValue;
  * @see CoerceJavaToLua
  * @see CoerceLuaToJava
  */
-public class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion {
+class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion {
 
 	static final Map classes = Collections.synchronizedMap(new HashMap());
 
@@ -54,8 +54,9 @@ public class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion 
 	
 	Map fields;
 	Map methods;
+	Map innerclasses;
 	
-	public static JavaClass forClass(Class c) {
+	static JavaClass forClass(Class c) {
 		JavaClass j = (JavaClass) classes.get(c);
 		if ( j == null )
 			classes.put( c, j = new JavaClass(c) );
@@ -78,7 +79,7 @@ public class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion 
 			for ( int i=0; i<f.length; i++ ) {
 				Field fi = f[i];
 				if ( Modifier.isPublic(fi.getModifiers()) ) {
-					m.put( LuaValue.valueOf(fi.getName()), fi );
+					m.put(LuaValue.valueOf(fi.getName()), fi);
 					try {
 						if (!fi.isAccessible())
 							fi.setAccessible(true);
@@ -100,13 +101,9 @@ public class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion 
 				if ( Modifier.isPublic( mi.getModifiers()) ) {
 					String name = mi.getName();
 					List list = (List) namedlists.get(name);
-					if ( list == null ) {
+					if ( list == null )
 						namedlists.put(name, list = new ArrayList());
-					}
-					JavaMethod method = JavaMethod.forMethod(mi);
-					if(method != null) {//FIXME by song, 做保护
-						list.add(method);
-					}
+					list.add( JavaMethod.forMethod(mi) );
 				}
 			}
 			Map map = new HashMap();
@@ -133,6 +130,21 @@ public class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion 
 			methods = map;
 		}
 		return (LuaValue) methods.get(key);
+	}
+	
+	Class getInnerClass(LuaValue key) {
+		if ( innerclasses == null ) {
+			Map m = new HashMap();
+			Class[] c = ((Class)m_instance).getClasses();
+			for ( int i=0; i<c.length; i++ ) {
+				Class ci = c[i];
+				String name = ci.getName();
+				String stub = name.substring(Math.max(name.lastIndexOf('$'), name.lastIndexOf('.'))+1);
+				m.put(LuaValue.valueOf(stub), ci);
+			}
+			innerclasses = m;
+		}
+		return (Class) innerclasses.get(key);
 	}
 
 	public LuaValue getConstructor() {

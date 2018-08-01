@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
@@ -45,7 +46,7 @@ import org.luaj.vm2.lib.VarArgFunction;
  * 
  * <p>
  * Typically, this library is included as part of a call to 
- * {@link JsePlatform#standardGlobals()}
+ * {@link org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * System.out.println( globals.get("luajava").get("bindClass").call( LuaValue.valueOf("java.lang.System") ).invokeMethod("currentTimeMillis") );
@@ -65,7 +66,7 @@ import org.luaj.vm2.lib.VarArgFunction;
  * <p>
  * 
  * The {@code luajava} library is available 
- * on all JSE platforms via the call to {@link JsePlatform#standardGlobals()}
+ * on all JSE platforms via the call to {@link org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()}
  * and the luajava api's are simply invoked from lua.  
  * Because it makes extensive use of Java's reflection API, it is not available 
  * on JME, but can be used in Android applications.
@@ -81,7 +82,7 @@ import org.luaj.vm2.lib.VarArgFunction;
  * @see <a href="http://www.keplerproject.org/luajava/manual.html#luareference">http://www.keplerproject.org/luajava/manual.html#luareference</a>
  */
 public class LuajavaLib extends VarArgFunction {
-	
+
 	static final int INIT           = 0;
 	static final int BINDCLASS      = 1;
 	static final int NEWINSTANCE	= 2;
@@ -99,7 +100,7 @@ public class LuajavaLib extends VarArgFunction {
 	
 	static final int METHOD_MODIFIERS_VARARGS = 0x80;
 
-	public  LuajavaLib() {
+	public LuajavaLib() {
 	}
 
 	public Varargs invoke(Varargs args) {
@@ -139,32 +140,7 @@ public class LuajavaLib extends VarArgFunction {
 					ifaces[i] = classForName(args.checkjstring(i+1));
 				
 				// create the invocation handler
-				InvocationHandler handler = new InvocationHandler() {
-					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-						String name = method.getName();
-						LuaValue func = lobj.get(name);
-						if ( func.isnil() )
-							return null;
-						boolean isvarargs = ((method.getModifiers() & METHOD_MODIFIERS_VARARGS) != 0);
-						int n = args!=null? args.length: 0; 
-						LuaValue[] v;
-						if ( isvarargs ) {								
-							Object o = args[--n];
-							int m = Array.getLength( o );
-							v = new LuaValue[n+m];
-							for ( int i=0; i<n; i++ )
-								v[i] = CoerceJavaToLua.coerce(args[i]);
-							for ( int i=0; i<m; i++ )
-								v[i+n] = CoerceJavaToLua.coerce(Array.get(o,i));								
-						} else {
-							v = new LuaValue[n];
-							for ( int i=0; i<n; i++ )
-								v[i] = CoerceJavaToLua.coerce(args[i]);
-						}
-						LuaValue result = func.invoke(v).arg1();
-						return CoerceLuaToJava.coerce(result, method.getReturnType());
-					}
-				};
+				InvocationHandler handler = new ProxyInvocationHandler(lobj);
 				
 				// create the proxy object
 				Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), ifaces, handler);
@@ -199,7 +175,43 @@ public class LuajavaLib extends VarArgFunction {
 
 	// load classes using app loader to allow luaj to be used as an extension
 	protected Class classForName(String name) throws ClassNotFoundException {
-		return Class.forName(name, true, ClassLoader.getSystemClassLoader());
+		//mod by kigkrazy
+		//此处引起反射或者bindClass找不到类的错误
+		//return Class.forName(name, true, ClassLoader.getSystemClassLoader());
+		return Class.forName(name);
+	}
+	
+	private static final class ProxyInvocationHandler implements InvocationHandler {
+		private final LuaValue lobj;
+
+		private ProxyInvocationHandler(LuaValue lobj) {
+			this.lobj = lobj;
+		}
+
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			String name = method.getName();
+			LuaValue func = lobj.get(name);
+			if ( func.isnil() )
+				return null;
+			boolean isvarargs = ((method.getModifiers() & METHOD_MODIFIERS_VARARGS) != 0);
+			int n = args!=null? args.length: 0; 
+			LuaValue[] v;
+			if ( isvarargs ) {								
+				Object o = args[--n];
+				int m = Array.getLength( o );
+				v = new LuaValue[n+m];
+				for ( int i=0; i<n; i++ )
+					v[i] = CoerceJavaToLua.coerce(args[i]);
+				for ( int i=0; i<m; i++ )
+					v[i+n] = CoerceJavaToLua.coerce(Array.get(o,i));								
+			} else {
+				v = new LuaValue[n];
+				for ( int i=0; i<n; i++ )
+					v[i] = CoerceJavaToLua.coerce(args[i]);
+			}
+			LuaValue result = func.invoke(v).arg1();
+			return CoerceLuaToJava.coerce(result, method.getReturnType());
+		}
 	}
 	
 }

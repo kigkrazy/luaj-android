@@ -49,13 +49,8 @@ class JavaMethod extends JavaMember {
 	
 	static JavaMethod forMethod(Method m) {
 		JavaMethod j = (JavaMethod) methods.get(m);
-		if ( j == null ) {
-			try {
-				methods.put(m, j = new JavaMethod(m));
-			} catch (Exception e){// FIXME by song，这里做了m.getParameterTypes保护
-				e.printStackTrace();
-			}
-		}
+		if ( j == null )
+			methods.put( m, j = new JavaMethod(m) );
 		return j;
 	}
 	
@@ -66,7 +61,7 @@ class JavaMethod extends JavaMember {
 	final Method method;
 	
 	private JavaMethod(Method m) {
-		super( m.getParameterTypes(), m.getModifiers() ); //TODO 这里需要保护, m.getParameterTypes报错
+		super( m.getParameterTypes(), m.getModifiers() );
 		this.method = m;
 		try {
 			if (!m.isAccessible())
