@@ -12,6 +12,8 @@ import com.reizx.luaj.util.AsfLog;
 import com.reizx.luaj.util.RxUtil;
 import com.reizx.luaj.view.common.BaseFragment;
 
+import org.luaj.vm2.lib.jse.JsePlatform;
+
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -58,6 +60,8 @@ public class SettingFragment extends BaseFragment<SettingPresenter> implements S
     @OnClick(R.id.btn_setting_page_xlog)
     public void printXlog(){
         AsfLog.d("start exec ...");
+        JsePlatform.standardGlobals();
+
     }
 
     @Override
