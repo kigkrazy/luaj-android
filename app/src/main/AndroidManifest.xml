@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.reizx.luaj">
+    <!--网络请求权限-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!--读写SD卡权限-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--读取手机信息权限-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--开机启动权限-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:name=".app.App">
+
+        <!-- android:screenOrientation="portrait" 限制只能竖屏显示 -->
+        <!--关闭软键盘自动弹出-->
+        <activity android:name=".view.MainActivity"
+            android:screenOrientation="portrait"
+            android:focusable="false"
+            android:focusableInTouchMode="true"
+            android:configChanges="keyboardHidden|orientation"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--服务-->
+        <service android:name=".service.ForegroundService"
+            android:process=":remote"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <!--广播-->
+        <receiver
+            android:name=".service.ForegroundService$NotificationClickReceiver"
+            android:enabled="true" />
+
+        <!--开机启动广播-->
+        <!--目前广播并无实际执行内容，如果不需要可以去掉-->
+        <receiver
+            android:name=".broadcast.BootBroadcast"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TEST" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

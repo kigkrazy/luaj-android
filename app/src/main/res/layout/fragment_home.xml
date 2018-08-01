@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <com.qmuiteam.qmui.widget.QMUITopBar
+        android:id="@+id/topbar"
+        style="@style/NormalTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/qmui_topbar_height" />
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+        <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+            android:id="@+id/btn_app_start_service"
+            style="@style/NormalRoundButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="@string/app_start_service"/>
+
+        <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+            android:id="@+id/btn_app_stop_service"
+            style="@style/NormalRoundButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="@string/app_stop_service"/>
+
+        <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+            android:id="@+id/btn_app_request_ip"
+            style="@style/NormalRoundButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="@string/app_get_current_ip"/>
+
+
+        <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+            android:id="@+id/btn_app_andromeda_call"
+            style="@style/NormalRoundButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="@string/app_get_andromeda_call"/>
+
+        <TextView
+            android:id="@+id/tv_app_show_ip_title"
+            style="@style/QDCommonTitle"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="@string/app_show_ip_title"/>
+
+        <TextView
+            android:id="@+id/tv_app_show_ip_des"
+            style="@style/QDCommonDescription"
+            android:layout_marginHorizontal="15dp"
+            android:gravity="top"
+            android:text="@string/app_show_ip_description"/>
+
+        <CheckBox
+            android:id="@+id/shenzhen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@drawable/qmui_s_checkbox"
+            android:text="深圳" />
+    </LinearLayout>
+</LinearLayout>

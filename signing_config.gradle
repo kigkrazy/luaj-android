@@ -1,0 +1,59 @@
+/**
+ * 如何使用本文件配置签名？
+ * 1. 将本文件复制到项目的根目录
+ *
+ * 2. 在buildTypes的release引入本文件。如下：
+ *  buildTypes {
+ *      ...
+ *      release {
+ *           minifyEnabled false
+ *           apply from: project.rootProject.rootDir.absolutePath + "\\signing_config.gradle" //引入签名配置
+ *      }
+ *      ...
+ *  }
+ *
+ * 3. 在项目根目录创建文件"SignatureInfo.properties"文件。这个文件里面必须填写四个属性，即签名相关信息。如下：
+ *      storeFile=${JKS_PATH} //签名文件位置
+ *      storePassword=${STORE_PASSWORD} //保存密码
+ *      keyAlias=${KEY_ALIAS}//别名
+ *      keyPassword=${KEY_PASSWORD}//密码
+ *
+ * 上面文件的四个属性，正好等于签名文件的四个属性，根据实际情况往对应的位置填入相应的值。
+ */
+
+//签名配置
+android {
+    signingConfigs {
+        zues_signature {
+            //加载资源
+            File signatureInfoFile = project.rootProject.file('SignatureInfo.properties')
+            if (!signatureInfoFile.exists()) {
+                return
+            }
+            Properties properties = new Properties()
+            InputStream inputStream = project.rootProject.file('SignatureInfo.properties').newDataInputStream()
+            properties.load(inputStream)
+            //读取字段
+            def key_storeFile = properties.getProperty('storeFile')
+            def key_storePassword = properties.getProperty('storePassword')
+
+            def key_keyAlias = properties.getProperty('keyAlias')
+            def key_keyPassword = properties.getProperty('keyPassword')
+
+            storeFile file(key_storeFile)
+            keyAlias key_keyAlias
+            keyPassword key_keyPassword
+            storePassword key_storePassword
+        }
+    }
+
+    buildTypes {
+        release {
+            File signatureInfoFile = project.rootProject.file('SignatureInfo.properties')
+            if (signatureInfoFile.exists()) {
+                apply plugin: 'walle'
+                signingConfig signingConfigs.zues_signature
+            }
+        }
+    }
+}

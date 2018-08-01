@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <com.qmuiteam.qmui.widget.QMUITopBar
+        android:id="@+id/topbar"
+        style="@style/NormalTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/qmui_topbar_height" />
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+        <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+            android:id="@+id/btn_setting_page_test"
+            style="@style/NormalRoundButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="测试"/>
+
+        <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+            android:id="@+id/btn_setting_page_xlog"
+            style="@style/NormalRoundButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="xlog"/>
+
+        <TextView
+            android:id="@+id/tv_setting_page_show_ip_des"
+            style="@style/QDCommonDescription"
+            android:layout_marginHorizontal="15dp"
+            android:gravity="top"
+            android:text="@string/app_show_ip_description"/>
+    </LinearLayout>
+</LinearLayout>

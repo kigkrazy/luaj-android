@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">LUAJ-ANDROID</string>
+    <!--zk服务测试相关-->
+    <string name="app_start_service">启动服务</string>
+    <string name="app_stop_service">停止服务</string>
+    <string name="app_get_current_ip">获取IP</string>
+    <string name="app_get_andromeda_call">Andromeda请求</string>
+    <string name="app_show_ip_title">当前IP：</string>
+    <string name="app_show_ip_description">null</string>
+</resources>
