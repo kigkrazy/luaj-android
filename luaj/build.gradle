@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 10
+        versionName "3.0.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -34,4 +34,19 @@ dependencies {
     implementation 'io.apisense:rhino-android:1.0'
     // https://mvnrepository.com/artifact/org.apache.bcel/bcel
     api group: 'org.apache.bcel', name: 'bcel', version: '5.2'
+}
+
+// 上传jcenter的工具配置
+apply plugin: 'com.novoda.bintray-release'
+
+// 发布请执行：
+// gradlew clean build bintrayUpload -PbintrayUser=kigkrazy -PbintrayKey=${APIKey} -PdryRun=false
+publish {
+    repoName = 'reizxutils'
+    artifactId = 'luaj-android'
+    groupId = 'com.reizx'
+    userOrg = 'kigkrazy'//bintray用户名
+    publishVersion = android.defaultConfig.versionName
+    website = 'https://github.com/kigkrazy/luaj-android'
+    desc = 'luaj for android'//描述，不重要
 }
