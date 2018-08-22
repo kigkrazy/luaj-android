@@ -19,6 +19,9 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 import org.qiyi.video.svg.Andromeda;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 
@@ -44,6 +47,27 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
         // Globals globals = JsePlatform.standardGlobals();
         // Use the convenience function on Globals to load a chunk.
         LuaValue chunk = globals.loadfile(path);
+        // Use any of the "call()" or "invoke()" functions directly on the chunk.
+        chunk.invoke();
+    }
+
+
+    @OnClick(R.id.btn_app_invoke_stream)
+    public void invokeStream() {
+        String path = "/sdcard/SimpleExample.lua";
+        // get the script InputStream
+        InputStream in = new ByteArrayInputStream(ResourceUtils.readAssets2String("SimpleExample.lua").getBytes());
+        // init global before
+        // create an environment to run in
+        // Globals globals = JsePlatform.standardGlobals();
+        // Use the convenience function on Globals to load a chunk.
+        /** Load the content form an input stream as a binary chunk or text file.
+         * @param is InputStream containing a lua script or compiled lua"
+         * @param chunkname Name that will be used within the chunk as the source.
+         * @param mode String containing 'b' or 't' or both to control loading as binary or text or either.
+         * @param environment LuaTable to be used as the environment for the loaded function.
+         * */
+        LuaValue chunk = globals.load(in, "@"+"Simple", "bt", globals);
         // Use any of the "call()" or "invoke()" functions directly on the chunk.
         chunk.invoke();
     }
