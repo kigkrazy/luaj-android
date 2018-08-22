@@ -43,6 +43,7 @@ public class hyperbolic extends TwoArgFunction {
         library.set( "sinh", new sinh() );
         library.set( "cosh", new cosh() );
         env.set( "hyperbolic", library );
+        //todo 官方这个例子少了如下的注册函数
         env.get("package").get("loaded").set("hyperbolic", library);
         return library;
     }
