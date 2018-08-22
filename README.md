@@ -8,6 +8,7 @@
 compile 'com.reizx:luaj-android:3.0.1'
 ```
 ### 使用例子
+以下例子都会输出以`luaj-tag`为tag的日志。
 #### 执行文件（[demo](app\src\main\java\com\reizx\luaj\view\fragment\HomeFragment.java)）
 ```
     public void invokeFile() {
@@ -23,6 +24,7 @@ compile 'com.reizx:luaj-android:3.0.1'
         chunk.invoke();
     }
 ```
+
 #### 执行脚本流
 ```
     public void invokeStream() {
@@ -44,5 +46,43 @@ compile 'com.reizx:luaj-android:3.0.1'
         chunk.invoke();
     }
 ```
+
+#### 自定义接口
+```
+    public void invokeCustom(){
+        Globals globals = customEvn();
+
+        // get the script InputStream
+        InputStream in = new ByteArrayInputStream(ResourceUtils.readAssets2String("hyperbolicapp.lua").getBytes());
+        LuaValue chunk = globals.load(in, "@"+"hyperbolicapp", "bt", globals);
+        // Use any of the "call()" or "invoke()" functions directly on the chunk.
+        chunk.invoke();
+    }
+    
+    /**
+     * 自定义lua环境，可以自定义API
+     * @return
+     */
+    public Globals customEvn(){
+        Globals globals = new Globals();
+        globals.load(new JseBaseLib());
+        globals.load(new PackageLib());
+        globals.load(new Bit32Lib());
+        globals.load(new TableLib());
+        globals.load(new StringLib());
+        globals.load(new CoroutineLib());
+        globals.load(new JseMathLib());
+        globals.load(new JseIoLib());
+        globals.load(new JseOsLib());
+        globals.load(new LuajavaLib());
+        //todo register library
+        globals.load(new hyperbolic());
+
+        LoadState.install(globals);
+        LuaC.install(globals);
+        return globals;
+    }
+```
+
 ### 修改日志
 * 修复`classloader`引用错误。

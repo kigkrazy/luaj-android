@@ -48,8 +48,7 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //globals = JsePlatform.standardGlobals();
-        globals = customEvn();
+        globals = JsePlatform.standardGlobals();
     }
 
     @OnClick(R.id.btn_app_invoke_file)
@@ -88,7 +87,7 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
 
     @OnClick(R.id.btn_app_custom_luaj_env)
     public void invokeCustom(){
-        //Globals globals = customEvn();
+        Globals globals = customEvn();
 
         // get the script InputStream
         InputStream in = new ByteArrayInputStream(ResourceUtils.readAssets2String("hyperbolicapp.lua").getBytes());
@@ -104,13 +103,13 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
          * */
         LuaValue chunk = globals.load(in, "@"+"hyperbolicapp", "bt", globals);
         // Use any of the "call()" or "invoke()" functions directly on the chunk.
-        try{
-            chunk.invoke();
-        }catch (Exception e){
-            LogUtil.d("the exception : " + e);
-        }
+        chunk.invoke();
     }
 
+    /**
+     * 自定义lua环境，可以自定义API
+     * @return
+     */
     public Globals customEvn(){
         Globals globals = new Globals();
         globals.load(new JseBaseLib());
