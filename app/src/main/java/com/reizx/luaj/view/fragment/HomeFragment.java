@@ -10,13 +10,27 @@ import com.blankj.utilcode.util.ResourceUtils;
 import com.qmuiteam.qmui.widget.QMUITopBar;
 import com.reizx.luaj.IAndromedaInf;
 import com.reizx.luaj.R;
+import com.reizx.luaj.component.hyperbolic;
 import com.reizx.luaj.contract.HomeConstract;
 import com.reizx.luaj.presenter.HomePresenter;
+import com.reizx.luaj.util.LogUtil;
 import com.reizx.luaj.view.common.BaseFragment;
 
 import org.luaj.vm2.Globals;
+import org.luaj.vm2.LoadState;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.compiler.LuaC;
+import org.luaj.vm2.lib.Bit32Lib;
+import org.luaj.vm2.lib.CoroutineLib;
+import org.luaj.vm2.lib.PackageLib;
+import org.luaj.vm2.lib.StringLib;
+import org.luaj.vm2.lib.TableLib;
+import org.luaj.vm2.lib.jse.JseBaseLib;
+import org.luaj.vm2.lib.jse.JseIoLib;
+import org.luaj.vm2.lib.jse.JseMathLib;
+import org.luaj.vm2.lib.jse.JseOsLib;
 import org.luaj.vm2.lib.jse.JsePlatform;
+import org.luaj.vm2.lib.jse.LuajavaLib;
 import org.qiyi.video.svg.Andromeda;
 
 import java.io.ByteArrayInputStream;
@@ -34,7 +48,8 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        globals = JsePlatform.standardGlobals();
+        //globals = JsePlatform.standardGlobals();
+        globals = customEvn();
     }
 
     @OnClick(R.id.btn_app_invoke_file)
@@ -51,10 +66,8 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
         chunk.invoke();
     }
 
-
     @OnClick(R.id.btn_app_invoke_stream)
     public void invokeStream() {
-        String path = "/sdcard/SimpleExample.lua";
         // get the script InputStream
         InputStream in = new ByteArrayInputStream(ResourceUtils.readAssets2String("SimpleExample.lua").getBytes());
         // init global before
@@ -70,6 +83,52 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
         LuaValue chunk = globals.load(in, "@"+"Simple", "bt", globals);
         // Use any of the "call()" or "invoke()" functions directly on the chunk.
         chunk.invoke();
+    }
+
+
+    @OnClick(R.id.btn_app_custom_luaj_env)
+    public void invokeCustom(){
+        //Globals globals = customEvn();
+
+        // get the script InputStream
+        InputStream in = new ByteArrayInputStream(ResourceUtils.readAssets2String("hyperbolicapp.lua").getBytes());
+        // init global before
+        // create an environment to run in
+        // Globals globals = JsePlatform.standardGlobals();
+        // Use the convenience function on Globals to load a chunk.
+        /** Load the content form an input stream as a binary chunk or text file.
+         * @param is InputStream containing a lua script or compiled lua"
+         * @param chunkname Name that will be used within the chunk as the source.
+         * @param mode String containing 'b' or 't' or both to control loading as binary or text or either.
+         * @param environment LuaTable to be used as the environment for the loaded function.
+         * */
+        LuaValue chunk = globals.load(in, "@"+"hyperbolicapp", "bt", globals);
+        // Use any of the "call()" or "invoke()" functions directly on the chunk.
+        try{
+            chunk.invoke();
+        }catch (Exception e){
+            LogUtil.d("the exception : " + e);
+        }
+    }
+
+    public Globals customEvn(){
+        Globals globals = new Globals();
+        globals.load(new JseBaseLib());
+        globals.load(new PackageLib());
+        globals.load(new Bit32Lib());
+        globals.load(new TableLib());
+        globals.load(new StringLib());
+        globals.load(new CoroutineLib());
+        globals.load(new JseMathLib());
+        globals.load(new JseIoLib());
+        globals.load(new JseOsLib());
+        globals.load(new LuajavaLib());
+        //todo register library
+        globals.load(new hyperbolic());
+
+        LoadState.install(globals);
+        LuaC.install(globals);
+        return globals;
     }
 
     @Override
