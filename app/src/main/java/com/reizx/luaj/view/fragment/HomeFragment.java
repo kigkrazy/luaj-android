@@ -1,9 +1,12 @@
 package com.reizx.luaj.view.fragment;
 
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.Nullable;
 import android.widget.TextView;
 
+import com.blankj.utilcode.util.ResourceUtils;
 import com.qmuiteam.qmui.widget.QMUITopBar;
 import com.reizx.luaj.IAndromedaInf;
 import com.reizx.luaj.R;
@@ -11,6 +14,9 @@ import com.reizx.luaj.contract.HomeConstract;
 import com.reizx.luaj.presenter.HomePresenter;
 import com.reizx.luaj.view.common.BaseFragment;
 
+import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.JsePlatform;
 import org.qiyi.video.svg.Andromeda;
 
 import butterknife.BindView;
@@ -20,39 +26,26 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
     @BindView(R.id.topbar)
     QMUITopBar mTopBar;
 
-    @BindView(R.id.tv_app_show_ip_des)
-    TextView tvIp;
+    private Globals globals;
 
-    @OnClick(R.id.btn_app_start_service)
-    public void startZkService() {
-        presenter.startZkService(baseActivity);
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        globals = JsePlatform.standardGlobals();
     }
 
-    @OnClick(R.id.btn_app_stop_service)
-    public void stopZkService() {
-        presenter.stopZkService(baseActivity);
-    }
-
-    @OnClick(R.id.btn_app_request_ip)
-    public void requestIp() {
-        presenter.showCurrentIp();
-    }
-
-    @OnClick(R.id.btn_app_andromeda_call)
-    public void andromedaCall() {
-        IBinder binder = Andromeda.with(app).getRemoteService(IAndromedaInf.class);
-        if (binder == null) {
-            return;
-        }
-        IAndromedaInf andromedaInf = IAndromedaInf.Stub.asInterface(binder);
-        if (andromedaInf == null) {
-            return;
-        }
-        try {
-            andromedaInf.remoteCall();
-        } catch (RemoteException ex) {
-            ex.printStackTrace();
-        }
+    @OnClick(R.id.btn_app_invoke_file)
+    public void invokeFile() {
+        String path = "/sdcard/SimpleExample.lua";
+        // copy the script to path
+        ResourceUtils.copyFileFromAssets("SimpleExample.lua", path);
+        // init global before
+        // create an environment to run in
+        // Globals globals = JsePlatform.standardGlobals();
+        // Use the convenience function on Globals to load a chunk.
+        LuaValue chunk = globals.loadfile(path);
+        // Use any of the "call()" or "invoke()" functions directly on the chunk.
+        chunk.invoke();
     }
 
     @Override
@@ -102,6 +95,5 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
 
     @Override
     public void setCurrentIp(String ip) {
-        tvIp.setText(ip);
     }
 }

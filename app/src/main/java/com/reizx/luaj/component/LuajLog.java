@@ -1,9 +1,9 @@
 package com.reizx.luaj.component;
 
-import com.reizx.luaj.util.AsfLog;
+import com.reizx.luaj.util.LogUtil;
 
 public class LuajLog {
     public static void d(String msg) {
-        AsfLog.d(msg);
+        LogUtil.d(msg);
     }
 }

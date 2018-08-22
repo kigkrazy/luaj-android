@@ -9,7 +9,7 @@ import com.reizx.luaj.di.component.DaggerAppComponent;
 import com.reizx.luaj.di.module.AppModule;
 import com.reizx.luaj.di.module.HttpModule;
 
-import static com.reizx.luaj.util.AsfLog.initLog;
+import static com.reizx.luaj.util.LogUtil.initLog;
 import org.qiyi.video.svg.Andromeda;
 
 /**

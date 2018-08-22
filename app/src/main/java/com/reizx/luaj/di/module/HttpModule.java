@@ -2,11 +2,8 @@ package com.reizx.luaj.di.module;
 
 import com.blankj.utilcode.util.NetworkUtils;
 import com.reizx.luaj.constant.Constants;
-import com.reizx.luaj.di.qualifier.IpQualifier;
 import com.reizx.luaj.model.DataManager;
-import com.reizx.luaj.model.retrofit.api.IpApi;
-import com.reizx.luaj.util.AsfLog;
-import com.reizx.luaj.util.SSLSocketClient;
+import com.reizx.luaj.util.LogUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +20,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 @Module
 public class HttpModule {
@@ -110,7 +104,7 @@ public class HttpModule {
         @Override
         public Response intercept(Interceptor.Chain chain) throws IOException {
             Request request = chain.request();
-            AsfLog.d(String.format("Sending request %s on %s%n%s",
+            LogUtil.d(String.format("Sending request %s on %s%n%s",
                     request.url(), chain.connection(), request.headers()));
             return chain.proceed(request);
         }

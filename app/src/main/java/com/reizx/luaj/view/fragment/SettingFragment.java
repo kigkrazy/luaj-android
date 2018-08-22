@@ -6,12 +6,11 @@ import android.support.annotation.Nullable;
 import android.widget.TextView;
 
 import com.blankj.utilcode.util.ResourceUtils;
-import com.blankj.utilcode.util.ShellUtils;
 import com.qmuiteam.qmui.widget.QMUITopBar;
 import com.reizx.luaj.R;
 import com.reizx.luaj.contract.SettingContract;
 import com.reizx.luaj.presenter.SettingPresenter;
-import com.reizx.luaj.util.AsfLog;
+import com.reizx.luaj.util.LogUtil;
 import com.reizx.luaj.util.RxUtil;
 import com.reizx.luaj.view.common.BaseFragment;
 
@@ -39,36 +38,36 @@ public class SettingFragment extends BaseFragment<SettingPresenter> implements S
     @OnClick(R.id.btn_setting_page_test)
     public void clickTest() {
         if (ds != null && !ds.isDisposed()) {
-            AsfLog.d("dispose the subscribe...");
+            LogUtil.d("dispose the subscribe...");
             ds.dispose();
             ds = null;
             return;
         }
 
-        AsfLog.d("click setting page test");
+        LogUtil.d("click setting page test");
         ds = Flowable.interval(1, TimeUnit.SECONDS)
                 .onBackpressureDrop()
                 .compose(RxUtil.<Long>rxSchedulerHelper())
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
-                        AsfLog.d("the inter ... " + aLong);
+                        LogUtil.d("the inter ... " + aLong);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        AsfLog.d("flow err : " + throwable);
+                        LogUtil.d("flow err : " + throwable);
                     }
                 });
     }
 
     @OnClick(R.id.btn_setting_page_xlog)
     public void printXlog() {
-        AsfLog.d("start exec ...");
+        LogUtil.d("start exec ...");
         String sc_path = "/sdcard/SimpleExample.lua";
         boolean copyResult = ResourceUtils.copyFileFromAssets("SimpleExample.lua", sc_path);
         if (!copyResult){
-            AsfLog.d("copy script error ...");
+            LogUtil.d("copy script error ...");
         }
         globals.loadfile(sc_path).invoke();
     }

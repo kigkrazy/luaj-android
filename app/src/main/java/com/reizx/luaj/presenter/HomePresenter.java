@@ -11,10 +11,9 @@ import com.reizx.luaj.constant.Constants;
 import com.reizx.luaj.contract.HomeConstract;
 import com.reizx.luaj.bean.event.IpStatusEvent;
 import com.reizx.luaj.model.DataManager;
-import com.reizx.luaj.model.retrofit.api.IpApi;
 import com.reizx.luaj.presenter.common.BasePresenterImpl;
 import com.reizx.luaj.service.ForegroundService;
-import com.reizx.luaj.util.AsfLog;
+import com.reizx.luaj.util.LogUtil;
 import com.reizx.luaj.util.RxUtil;
 
 import javax.inject.Inject;
@@ -60,7 +59,7 @@ public class HomePresenter extends BasePresenterImpl<HomeConstract.View> impleme
     @Override
     public void showCurrentIp() {
         //view.setCurrentIp();
-        AsfLog.d("showCurrentIp...");
+        LogUtil.d("showCurrentIp...");
         //view.showTip(QMUITipDialog.Builder.ICON_TYPE_LOADING, "正在请求");
         RxBus.getInstance().post(new TipEvent(view.getClass().getName(), TipEvent.TipAction.SHOW, QMUITipDialog.Builder.ICON_TYPE_LOADING, "正在请求"));
         dm.getIpApi().getCurrentIp()

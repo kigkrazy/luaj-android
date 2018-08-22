@@ -14,7 +14,7 @@ import android.support.annotation.Nullable;
 import com.reizx.luaj.IAndromedaInf;
 import com.reizx.luaj.R;
 import com.reizx.luaj.constant.Constants;
-import com.reizx.luaj.util.AsfLog;
+import com.reizx.luaj.util.LogUtil;
 
 import org.qiyi.video.svg.Andromeda;
 
@@ -33,7 +33,7 @@ public class ForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        AsfLog.d(TAG, "--------->onStartCommand: ");
+        LogUtil.d(TAG, "--------->onStartCommand: ");
         //启动前台服务
         setNotification(Constants.FORGROUND_SERVICE_TITILE,
                 Constants.FORGROUND_SERVICE_CONTENT_TEXT,
@@ -78,7 +78,7 @@ public class ForegroundService extends Service {
 
             @Override
             public void remoteCall() throws RemoteException {
-                AsfLog.d("remoteCall success...");
+                LogUtil.d("remoteCall success...");
             }
         });
     }
@@ -89,7 +89,7 @@ public class ForegroundService extends Service {
     public static class NotificationClickReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            AsfLog.d(TAG, "NotificationClickReceiver --------->onReceive: stop service");
+            LogUtil.d(TAG, "NotificationClickReceiver --------->onReceive: stop service");
             context.stopService(new Intent(context, ForegroundService.class));
         }
     }

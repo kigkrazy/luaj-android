@@ -1,39 +1,26 @@
-# 安卓项目初始化框架
-本框架是为了方便开发，整合一些最基本的功能。在开发新项目的时候可以基于这个项目进行修改。
+# luaj安卓框架
+本项目由[luaj](https://github.com/luaj/luaj)的`jse`版本为基础修改而来。语法上与`luaj`并无不一样，主要修改了几处安卓平台上的引用错误。
 
-## 项目介绍
-项目引用了几个大框架`Design + MVP + RxJava2 + Retrofit + Dagger2 + QMUI`进行项目初始化搭建。
+## 使用
+### 引入库
 
-## 使用方法
-直接下载项目，修改项目`包名`，`项目名`，`applicationId`等关键信息就可以进行开发了。
-
-### 添加Retrofit2请求接口(此处我们以`IpApi`为例)
-1. 在`com.reizx.asf.model.retrofit.api`包下建立相关接口类(`IpApi`)
-2. 在`com.reizx.ares.mgr.model.DataManager#createAllApi`的构造函数添加对应API的实例创建
-```java
-    private UpdateApi updateApi;//此处声明
-
-    public DataManager(Retrofit.Builder builder, OkHttpClient client){
-        createAllApi(builder, client);
-    }
-
-    /**
-     * 创建所有API实例
-     * @param builder
-     * @param client
-     */
-    public void createAllApi(Retrofit.Builder builder, OkHttpClient client) {
-        // todo 此处添加所有需要的API
-        updateApi = createRetrofit(builder, client, UpdateApi.HOST).create(UpdateApi.class);//更新信息请求接口
-    }
 ```
-**后续如果有其他类似`Sqlite`或者`sharedpreferences`管理接口也可以直接写在`DataManager`中。**
+compile 'com.reizx:luaj-android:3.0.1'
+```
+### 使用例子
+#### 执行文件（[demo](app\src\main\java\com\reizx\luaj\view\fragment\HomeFragment.java)）
+```
+    String path = "/sdcard/SimpleExample.lua";
+    // copy the script to path
+    ResourceUtils.copyFileFromAssets("SimpleExample.lua", path);
+    // init global before
+    // create an environment to run in
+    // Globals globals = JsePlatform.standardGlobals();
+    // Use the convenience function on Globals to load a chunk.
+    LuaValue chunk = globals.loadfile(path);
+    // Use any of the "call()" or "invoke()" functions directly on the chunk.
+    chunk.invoke();
+```
 
-## 项目规范
-[安卓个人开发规范开发规范](https://kigkrazy.github.io/android/2018/01/11/android-develop-framework/)
-
-## 相关依赖库推荐
-[andrutil](https://github.com/kigkrazy/andrutil)  
-
-## 更新
-[更新日志](UPDATE_LOG.md)
+### 修改日志
+* 修复`classloader`引用错误。
