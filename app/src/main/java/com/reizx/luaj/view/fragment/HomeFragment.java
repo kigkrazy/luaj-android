@@ -1,19 +1,14 @@
 package com.reizx.luaj.view.fragment;
 
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.support.annotation.Nullable;
-import android.widget.TextView;
 
 import com.blankj.utilcode.util.ResourceUtils;
 import com.qmuiteam.qmui.widget.QMUITopBar;
-import com.reizx.luaj.IAndromedaInf;
 import com.reizx.luaj.R;
 import com.reizx.luaj.component.hyperbolic;
 import com.reizx.luaj.contract.HomeConstract;
 import com.reizx.luaj.presenter.HomePresenter;
-import com.reizx.luaj.util.LogUtil;
 import com.reizx.luaj.util.LuajUtil;
 import com.reizx.luaj.view.common.BaseFragment;
 
@@ -32,7 +27,6 @@ import org.luaj.vm2.lib.jse.JseMathLib;
 import org.luaj.vm2.lib.jse.JseOsLib;
 import org.luaj.vm2.lib.jse.JsePlatform;
 import org.luaj.vm2.lib.jse.LuajavaLib;
-import org.qiyi.video.svg.Andromeda;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -130,11 +124,11 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
         return globals;
     }
 
-    @OnClick(R.id.btn_app_list_return)
+    @OnClick(R.id.btn_app_list_example)
     public void testListReturn(){
-        String path = "/sdcard/ListReturnExample.lua";
+        String path = "/sdcard/ListExample.lua";
         // copy the script to path
-        ResourceUtils.copyFileFromAssets("ListReturnExample.lua", path);
+        ResourceUtils.copyFileFromAssets("ListExample.lua", path);
         LuajUtil.execFile(path);
     }
 

@@ -44,7 +44,7 @@
             tools:ignore="UnusedAttribute" />
 
         <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
-            android:id="@+id/btn_app_list_return"
+            android:id="@+id/btn_app_list_example"
             style="@style/NormalRoundButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
