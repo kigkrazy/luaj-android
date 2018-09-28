@@ -33,7 +33,7 @@ public class ForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        LogUtil.d(TAG, "--------->onStartCommand: ");
+        LogUtil.dt(TAG, "--------->onStartCommand: ");
         //启动前台服务
         setNotification(Constants.FORGROUND_SERVICE_TITILE,
                 Constants.FORGROUND_SERVICE_CONTENT_TEXT,
@@ -89,7 +89,7 @@ public class ForegroundService extends Service {
     public static class NotificationClickReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            LogUtil.d(TAG, "NotificationClickReceiver --------->onReceive: stop service");
+            LogUtil.dt(TAG, "NotificationClickReceiver --------->onReceive: stop service");
             context.stopService(new Intent(context, ForegroundService.class));
         }
     }

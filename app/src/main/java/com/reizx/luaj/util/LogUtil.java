@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.blankj.utilcode.constant.TimeConstants;
 import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.Logger;
@@ -55,37 +56,40 @@ public class LogUtil {
     }
 
     /**
-     * 初始化Log，这个初始化只会打印到控制台
-     * @param tag 日志TAG
+     * 初始化Log，这个初始化会打印到控制台和文件
+     *
+     * @param tag    日志TAG
+     * @param level  低于level的将不会被打印。值请参考 {@link LogLevel}
+     * @param logDir 打印日志保存文件的地址，为null的时候标示不打印
      */
-    public static void initLog(String tag){
-        XLog.init(LogLevel.ALL);//初始化否则报错
-        Printer androidPrinter = new AndroidPrinter();
-        initLog(tag, androidPrinter);
+    public static void initLog(String tag, int level, String logDir) {
+        Printer androidPrinter = new AndroidPrinter();                                     // 通过 android.util.Log 打印日志的打印器
+
+        if (!StringUtils.isEmpty(logDir)){
+            LogUtil.HistoryDateFileNameGenerator fileNameGenerator = new LogUtil.HistoryDateFileNameGenerator(3, logDir);
+            Printer filePrinter = new FilePrinter                                               // 打印日志到文件的打印器
+                    .Builder(logDir)                                                            // 指定保存日志文件的路径
+                    .fileNameGenerator(fileNameGenerator)                                       // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
+                    .backupStrategy(new FileSizeBackupStrategy(500 * 1024 * 1024))    // 指定日志文件备份策略，默认为 FileSizeBackupStrategy(1024 * 1024)
+                    .logFlattener(new DefaultFlattener())                                       // 指定日志平铺器，默认为 DefaultFlattener
+                    .build();
+            buildLogger(level, tag, androidPrinter, filePrinter);
+        } else {
+            buildLogger(level, tag, androidPrinter);
+        }
+
     }
 
     /**
-     * 初始化Log，这个初始化会打印到控制台和文件
-     * @param tag 日志TAG
-     * @param logDir 打印日志保存文件的地址
+     * @param level    see {@link LogLevel}低于level的将不会被打印
+     * @param tag
+     * @param printers
      */
-    public static void initLog(String tag, String logDir){
-        Printer androidPrinter = new AndroidPrinter();                                      // 通过 android.util.Log 打印日志的打印器
-        LogUtil.HistoryDateFileNameGenerator fileNameGenerator = new LogUtil.HistoryDateFileNameGenerator(3, logDir);
-        Printer filePrinter = new FilePrinter                                               // 打印日志到文件的打印器
-                .Builder(logDir)                                                            // 指定保存日志文件的路径
-                .fileNameGenerator(fileNameGenerator)                                       // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
-                .backupStrategy(new FileSizeBackupStrategy(500 * 1024 * 1024))    // 指定日志文件备份策略，默认为 FileSizeBackupStrategy(1024 * 1024)
-                .logFlattener(new DefaultFlattener())                                       // 指定日志平铺器，默认为 DefaultFlattener
-                .build();
-
-        initLog(tag, androidPrinter, filePrinter);
-    }
-
-    public static void initLog(String tag, Printer...printers){
+    private static void buildLogger(int level, String tag, Printer... printers) {
         logger = new Logger.Builder()
                 .nt()
                 .tag(tag)
+                .logLevel(level)
                 .nb()
                 .nst()
                 .printers(printers)
@@ -95,8 +99,18 @@ public class LogUtil {
     public static void d(@NonNull String message) {
         logger.d(message);
     }
-    public static void d(@NonNull String tag, @NonNull String message) {
-        message = "[" + tag + "] : " + message;
+
+    public static void dt(@NonNull String tag, @NonNull String message) {
+        message = String.format("[%s] : %s", tag, message);
+        logger.d(message);
+    }
+
+    public static void dd(@NonNull String message, Object... args) {
+        logger.d(String.format(message, args));
+    }
+
+    public static void ddt(@NonNull String tag, @NonNull String message, Object... args) {
+        message = String.format("[%s] : %s", tag, String.format(message, args));
         logger.d(message);
     }
 
@@ -104,28 +118,53 @@ public class LogUtil {
         logger.i(message);
     }
 
-    public static void i(@NonNull String tag, @NonNull String message) {
-        message = "[" + tag + "] : " + message;
+    public static void it(@NonNull String tag, @NonNull String message) {
+        message = String.format("[%s] : %s", tag, message);
         logger.i(message);
     }
 
+    public static void ii(@NonNull String message, Object... args) {
+        logger.i(String.format(message, args));
+    }
+
+    public static void iit(@NonNull String tag, @NonNull String message, Object... args) {
+        message = String.format("[%s] : %s", tag, String.format(message, args));
+        logger.i(message);
+    }
 
     public static void v(@NonNull String message, @Nullable Object... args) {
         logger.v(message, args);
     }
 
-    public static void v(@NonNull String tag, @NonNull String message) {
-        message = "[" + tag + "] : " + message;
+    public static void vt(@NonNull String tag, @NonNull String message) {
+        message = String.format("[%s] : %s", tag, message);
         logger.v(message);
     }
 
+    public static void vv(@NonNull String message, Object ...args) {
+        logger.v(String.format(message, args));
+    }
+
+    public static void vvt(@NonNull String tag, @NonNull String message, Object ...args) {
+        message = String.format("[%s] : %s", tag, String.format(message, args));
+        logger.v(message);
+    }
 
     public static void w(@NonNull String message, @Nullable Object... args) {
         logger.w(message, args);
     }
 
-    public static void w(@NonNull String tag, @NonNull String message) {
-        message = "[" + tag + "] : " + message;
+    public static void wt(@NonNull String tag, @NonNull String message) {
+        message = String.format("[%s] : %s", tag, message);
+        logger.w(message);
+    }
+
+    public static void ww(@NonNull String message, Object ...args) {
+        logger.w(String.format(message, args));
+    }
+
+    public static void wwt(@NonNull String tag, @NonNull String message, Object ...args) {
+        message = String.format("[%s] : %s", tag, String.format(message, args));
         logger.w(message);
     }
 
@@ -134,8 +173,17 @@ public class LogUtil {
         logger.e(message, args);
     }
 
-    public static void e(@NonNull String tag, @NonNull String message) {
-        message = "[" + tag + "] : " + message;
+    public static void et(@NonNull String tag, @NonNull String message) {
+        message = String.format("[%s] : %s", tag, message);
+        logger.e(message);
+    }
+
+    public static void ee(@NonNull String message, Object ...args) {
+        logger.e(String.format(message, args));
+    }
+
+    public static void eet(@NonNull String tag, @NonNull String message, Object ...args) {
+        message = String.format("[%s] : %s", tag, String.format(message, args));
         logger.e(message);
     }
 

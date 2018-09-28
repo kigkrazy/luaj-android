@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.blankj.utilcode.util.Utils;
+import com.elvishew.xlog.LogLevel;
 import com.reizx.luaj.di.component.AppComponent;
 import com.reizx.luaj.di.component.DaggerAppComponent;
 import com.reizx.luaj.di.module.AppModule;
@@ -27,8 +28,8 @@ public class App extends Application {
         app = this;
         //初始化日志环境，设置全局
 
-        Log.d("luaj-tag", "asf-tag onCreate...");
-        initLog("luaj-tag");
+        Log.d("luaj-tag", "App onCreate...");
+        initLog("luaj-tag", LogLevel.ALL,null);
         Utils.init(this);//初始化AndroidUtilCode库
         Andromeda.init(app);
     }

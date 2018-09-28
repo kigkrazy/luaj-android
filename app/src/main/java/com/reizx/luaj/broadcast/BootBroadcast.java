@@ -12,6 +12,6 @@ import com.reizx.luaj.util.LogUtil;
 public class BootBroadcast extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        LogUtil.d(BootBroadcast.class.toString(),"receive BootBroadcast");
+        LogUtil.dt(BootBroadcast.class.toString(),"receive BootBroadcast");
     }
 }

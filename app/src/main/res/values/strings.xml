@@ -4,6 +4,7 @@
     <string name="app_invoke_file">invoke执行文件</string>
     <string name="app_invoke_stream">invoke执行命令流</string>
     <string name="app_custom_luaj_env">自定义luaj环境</string>
+    <string name="app_list_return">数组返回值接口测试</string>
     <string name="app_get_current_ip">获取IP</string>
     <string name="app_get_andromeda_call">Andromeda请求</string>
     <string name="app_show_ip_title">当前IP：</string>

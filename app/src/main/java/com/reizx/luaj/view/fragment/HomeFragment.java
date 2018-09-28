@@ -14,6 +14,7 @@ import com.reizx.luaj.component.hyperbolic;
 import com.reizx.luaj.contract.HomeConstract;
 import com.reizx.luaj.presenter.HomePresenter;
 import com.reizx.luaj.util.LogUtil;
+import com.reizx.luaj.util.LuajUtil;
 import com.reizx.luaj.view.common.BaseFragment;
 
 import org.luaj.vm2.Globals;
@@ -84,7 +85,6 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
         chunk.invoke();
     }
 
-
     @OnClick(R.id.btn_app_custom_luaj_env)
     public void invokeCustom(){
         Globals globals = customEvn();
@@ -130,6 +130,16 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
         return globals;
     }
 
+    @OnClick(R.id.btn_app_list_return)
+    public void testListReturn(){
+        String path = "/sdcard/ListReturnExample.lua";
+        // copy the script to path
+        ResourceUtils.copyFileFromAssets("ListReturnExample.lua", path);
+        LuajUtil.execFile(path);
+    }
+
+
+
     @Override
     public int getFragmentLayoutID() {
         return R.layout.fragment_home;
@@ -148,31 +158,6 @@ public class HomeFragment extends BaseFragment<HomePresenter> implements HomeCon
 
     public void initTopBar() {
         mTopBar.setTitle("主页");
-    }
-
-    @Override
-    public void showErrorMsg(String msg) {
-
-    }
-
-    @Override
-    public void stateError() {
-
-    }
-
-    @Override
-    public void stateEmpty() {
-
-    }
-
-    @Override
-    public void stateLoading() {
-
-    }
-
-    @Override
-    public void stateMain() {
-
     }
 
     @Override

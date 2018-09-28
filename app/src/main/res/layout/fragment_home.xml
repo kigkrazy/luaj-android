@@ -42,5 +42,15 @@
             android:layout_marginHorizontal="15dp"
             android:text="@string/app_custom_luaj_env"
             tools:ignore="UnusedAttribute" />
+
+        <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+            android:id="@+id/btn_app_list_return"
+            style="@style/NormalRoundButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="@string/app_list_return"
+            tools:ignore="UnusedAttribute" />
     </LinearLayout>
 </LinearLayout>

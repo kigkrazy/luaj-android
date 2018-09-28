@@ -2,6 +2,8 @@ package com.reizx.luaj.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 
 import com.qmuiteam.qmui.util.QMUIStatusBarHelper;
@@ -42,7 +44,8 @@ public class MainActivity extends BaseActivity<MainActivityPresenter> implements
     @Override
     protected void onCreateFinish() {
         //super.onCreateFinish();
-        requestPermission();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            requestPermission();
     }
 
     /**
