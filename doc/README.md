@@ -3,4 +3,4 @@
 * [使用例子]()
 
 ## FAQ
-* [关于JAVA端返回(List, ArrayList, 数组)](faq/LIST-FAQ.md)
+* [关于JAVA端返回数组以及LUA端使用](faq/LIST-FAQ.md)

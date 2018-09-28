@@ -1,4 +1,4 @@
-# 关于LIST的相关问题
+# 关于JAVA端返回数组以及LUA端使用
 
 ## 支持的数组返回形式
 目前不支持`List`与`ArrayList`,只支持数组(String[])形式的返回值。
@@ -18,7 +18,7 @@ end
 ```
 ----------------------------------------------------------
 
-`ListReturnExample.lua`内容牛下
+`ListReturnExample.lua`内容如下：
 ```lua
 --
 -- JAVA层返回数组的测试用例
