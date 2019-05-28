@@ -177,8 +177,12 @@ public class LuajavaLib extends VarArgFunction {
 	protected Class classForName(String name) throws ClassNotFoundException {
 		//mod by kigkrazy
 		//此处引起反射或者bindClass找不到类的错误
-		//return Class.forName(name, true, ClassLoader.getSystemClassLoader());
-		return Class.forName(name);
+		try {
+			Class.forName("android.util.Log");//查找android中的log类找到类则证明为安卓环境
+			return Class.forName(name, true, ClassLoader.getSystemClassLoader());
+		} catch (Exception e){
+			return Class.forName(name);
+		}
 	}
 	
 	private static final class ProxyInvocationHandler implements InvocationHandler {
