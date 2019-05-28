@@ -7,7 +7,7 @@
 ### 引入库
 
 ```
-compile 'com.reizx:luaj-android:3.0.1'
+compile 'com.reizx:luaj-android:3.0.4'
 ```
 ### JAVA调用LUA例子
 以下例子都会输出以`luaj-tag`为tag的日志。
